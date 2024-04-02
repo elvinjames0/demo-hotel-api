@@ -47,7 +47,6 @@ const updateShift = async (req, res) => {
           status: false,
         },
       });
-      // lấy employee_id của nhân viên ca sau
       await prisma.SHIFT_DETAIL.create({
         data: {
           shift_id: newData.shift_id,

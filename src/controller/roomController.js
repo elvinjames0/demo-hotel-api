@@ -31,12 +31,12 @@ const addRoom = async (req, res) => {
 };
 const deleteRoom = async (req, res) => {
   try {
-    const { room_id } = req.body;
+    const { id } = req.params;
     const room = await prisma.ROOM.findUnique({
-      where: { room_id: Number(room_id) },
+      where: { room_id: Number(id) },
     });
     if (room) {
-      await prisma.ROOM.delete({ where: { room_id: Number(room_id) } });
+      await prisma.ROOM.delete({ where: { room_id: Number(id) } });
       successCode(res, room, "Deleted!");
     } else {
       failCode(res, null, failText);
@@ -87,13 +87,13 @@ const addRoomType = async (req, res) => {
 };
 const deleteRoomType = async (req, res) => {
   try {
-    const { room_type } = req.body;
+    const { id } = req.params;
     const type = await prisma.ROOM_TYPE.findUnique({
-      where: { room_type: Number(room_type) },
+      where: { room_type: Number(id) },
     });
     if (type) {
       await prisma.ROOM_TYPE.delete({
-        where: { room_type: Number(room_type) },
+        where: { room_type: Number(id) },
       });
       successCode(res, type, "Deleted!");
     } else {
