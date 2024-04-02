@@ -1,0 +1,233 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model BILL {
+  bill_id          Int              @id @default(autoincrement())
+  shift_id         Int?
+  cus_id           Int?
+  room_id          Int?
+  check_in         String?          @db.VarChar(255)
+  check_out        String?          @db.VarChar(255)
+  room_price       Int?
+  total_service    Int?
+  total_prepayment Int?
+  discount         Int?
+  other_expenses   Int?
+  status           Boolean?
+  description      String?          @db.VarChar(255)
+  bill_type        Boolean?
+  total_bill       Int?
+  SHIFT            SHIFT?           @relation(fields: [shift_id], references: [shift_id], onDelete: NoAction, onUpdate: NoAction, map: "BILL_ibfk_1")
+  CUSTOMER         CUSTOMER?        @relation(fields: [cus_id], references: [cus_id], onDelete: NoAction, onUpdate: NoAction, map: "BILL_ibfk_2")
+  ROOM             ROOM?            @relation(fields: [room_id], references: [room_id], onDelete: NoAction, onUpdate: NoAction, map: "BILL_ibfk_3")
+  PREPAYMENT       PREPAYMENT[]
+  SERVICE_DETAIL   SERVICE_DETAIL[]
+
+  @@index([cus_id], map: "cus_id")
+  @@index([room_id], map: "room_id")
+  @@index([shift_id], map: "shift_id")
+}
+
+model BONUS_FINE {
+  bf_id        Int       @id @default(autoincrement())
+  employee_id  Int?
+  payroll_id   Int?
+  bf_date_time DateTime? @db.DateTime(0)
+  money        Int?
+  description  String?   @db.VarChar(255)
+  bf_type      Boolean?
+  EMPLOYEE     EMPLOYEE? @relation(fields: [employee_id], references: [employee_id], onDelete: NoAction, onUpdate: NoAction, map: "BONUS_FINE_ibfk_1")
+  PAYROLL      PAYROLL?  @relation(fields: [payroll_id], references: [payroll_id], onDelete: NoAction, onUpdate: NoAction, map: "BONUS_FINE_ibfk_2")
+
+  @@index([employee_id], map: "employee_id")
+  @@index([payroll_id], map: "payroll_id")
+}
+
+model CUSTOMER {
+  cus_id   Int      @id @default(autoincrement())
+  cus_name String   @db.VarChar(100)
+  cccd     String?  @db.VarChar(50)
+  phone    String?  @db.VarChar(20)
+  gender   Boolean?
+  status   Int?
+  BILL     BILL[]
+}
+
+model EMPLOYEE {
+  employee_id   Int            @id @default(autoincrement())
+  role_id       Int?
+  username      String?        @unique(map: "username") @db.VarChar(30)
+  password      String?        @db.VarChar(255)
+  fullname      String?        @db.VarChar(50)
+  cccd          String?        @db.VarChar(255)
+  phone         String?        @db.VarChar(20)
+  address       String?        @db.VarChar(100)
+  gender        Int?
+  date_of_birth String?        @db.VarChar(20)
+  gmail         String?        @db.VarChar(100)
+  nationality   Int?
+  status        Int?
+  date_start    DateTime?      @db.DateTime(0)
+  date_end      DateTime?      @db.DateTime(0)
+  BONUS_FINE    BONUS_FINE[]
+  ROLE          ROLE?          @relation(fields: [role_id], references: [role_id], onDelete: NoAction, onUpdate: NoAction, map: "EMPLOYEE_ibfk_1")
+  PAYROLL       PAYROLL[]
+  PREPAYMENT    PREPAYMENT[]
+  SHIFT_DETAIL  SHIFT_DETAIL[]
+  STOCK_IN      STOCK_IN[]
+
+  @@index([role_id], map: "role_id")
+}
+
+model EXPENDITURES {
+  expenditures_id        Int     @id @default(autoincrement())
+  shift_id               Int?
+  description            String? @db.VarChar(255)
+  money                  Int?
+  expenditures_date_time String? @db.VarChar(255)
+  SHIFT                  SHIFT?  @relation(fields: [shift_id], references: [shift_id], onDelete: NoAction, onUpdate: NoAction, map: "EXPENDITURES_ibfk_1")
+
+  @@index([shift_id], map: "shift_id")
+}
+
+model PAYROLL {
+  payroll_id        Int          @id @default(autoincrement())
+  employee_id       Int?
+  day_of_work       Int?
+  allowance         Int?
+  total_bonus       Int?
+  total_fine        Int?
+  status            Boolean?
+  payroll_date_time String?      @db.VarChar(255)
+  total_salary      Int?
+  BONUS_FINE        BONUS_FINE[]
+  EMPLOYEE          EMPLOYEE?    @relation(fields: [employee_id], references: [employee_id], onDelete: NoAction, onUpdate: NoAction, map: "PAYROLL_ibfk_1")
+
+  @@index([employee_id], map: "employee_id")
+}
+
+model PREPAYMENT {
+  prepayment_id        Int       @id @default(autoincrement())
+  bill_id              Int?
+  employee_id          Int?
+  money                Int?
+  description          String?   @db.VarChar(255)
+  prepayment_date_time String?   @db.VarChar(255)
+  prepayment_type      Boolean?
+  BILL                 BILL?     @relation(fields: [bill_id], references: [bill_id], onDelete: NoAction, onUpdate: NoAction, map: "PREPAYMENT_ibfk_1")
+  EMPLOYEE             EMPLOYEE? @relation(fields: [employee_id], references: [employee_id], onDelete: NoAction, onUpdate: NoAction, map: "PREPAYMENT_ibfk_2")
+
+  @@index([bill_id], map: "bill_id")
+  @@index([employee_id], map: "employee_id")
+}
+
+model PRODUCT {
+  product_id      Int               @id @default(autoincrement())
+  product_name    String?           @db.VarChar(100)
+  product_type    Int?
+  price           Int?
+  quantity        Int?
+  SERVICE_DETAIL  SERVICE_DETAIL[]
+  STOCK_IN_DETAIL STOCK_IN_DETAIL[]
+}
+
+model ROLE {
+  role_id     Int        @id @default(autoincrement())
+  role_name   String?    @db.VarChar(50)
+  base_salary String?    @db.VarChar(50)
+  EMPLOYEE    EMPLOYEE[]
+}
+
+model ROOM {
+  room_id     Int        @id @default(autoincrement())
+  room_type   Int?
+  room_number Int?
+  status      Int?
+  balcony     Boolean?
+  fan         Boolean?
+  chair       Boolean?
+  BILL        BILL[]
+  ROOM_TYPE   ROOM_TYPE? @relation(fields: [room_type], references: [room_type], onDelete: NoAction, onUpdate: NoAction, map: "ROOM_ibfk_1")
+
+  @@index([room_type], map: "room_type")
+}
+
+model ROOM_TYPE {
+  room_type           Int     @id @default(autoincrement())
+  type_name           String? @db.VarChar(20)
+  room_quantity       Int?
+  price_by_day        Int?
+  price_by_first_hour Int?
+  price_by_next_hour  Int?
+  ROOM                ROOM[]
+}
+
+model SERVICE_DETAIL {
+  service_detail_id Int      @id @default(autoincrement())
+  product_id        Int?
+  bill_id           Int?
+  quantity          Int?
+  service_time      String?  @db.VarChar(255)
+  price             Int?
+  PRODUCT           PRODUCT? @relation(fields: [product_id], references: [product_id], onDelete: NoAction, onUpdate: NoAction, map: "SERVICE_DETAIL_ibfk_1")
+  BILL              BILL?    @relation(fields: [bill_id], references: [bill_id], onDelete: NoAction, onUpdate: NoAction, map: "SERVICE_DETAIL_ibfk_2")
+
+  @@index([bill_id], map: "bill_id")
+  @@index([product_id], map: "product_id")
+}
+
+model SHIFT {
+  shift_id        Int            @id @default(autoincrement())
+  total_cash      Int?
+  total_card      Int?
+  expenditures    Int?
+  total_revenue   Int?
+  cash_in_counter Int?
+  time_start      String?        @db.VarChar(255)
+  time_end        String?        @db.VarChar(255)
+  description     String?        @db.VarChar(255)
+  status          Boolean?
+  BILL            BILL[]
+  EXPENDITURES    EXPENDITURES[]
+  SHIFT_DETAIL    SHIFT_DETAIL[]
+}
+
+model SHIFT_DETAIL {
+  shift_detail_id Int       @id @default(autoincrement())
+  shift_id        Int?
+  employee_id     Int?
+  time_login      DateTime? @db.DateTime(0)
+  SHIFT           SHIFT?    @relation(fields: [shift_id], references: [shift_id], onDelete: NoAction, onUpdate: NoAction, map: "SHIFT_DETAIL_ibfk_1")
+  EMPLOYEE        EMPLOYEE? @relation(fields: [employee_id], references: [employee_id], onDelete: NoAction, onUpdate: NoAction, map: "SHIFT_DETAIL_ibfk_2")
+
+  @@index([employee_id], map: "employee_id")
+  @@index([shift_id], map: "shift_id")
+}
+
+model STOCK_IN {
+  stock_id        Int               @id @default(autoincrement())
+  stock_date      String?           @db.VarChar(255)
+  employee_id     Int?
+  EMPLOYEE        EMPLOYEE?         @relation(fields: [employee_id], references: [employee_id], onDelete: NoAction, onUpdate: NoAction, map: "employee_id")
+  STOCK_IN_DETAIL STOCK_IN_DETAIL[]
+
+  @@index([employee_id], map: "employee_id")
+}
+
+model STOCK_IN_DETAIL {
+  stock_detail_id Int       @id @default(autoincrement())
+  stock_id        Int?
+  product_id      Int?
+  quantity        Int?
+  STOCK_IN        STOCK_IN? @relation(fields: [stock_id], references: [stock_id], onDelete: NoAction, onUpdate: NoAction, map: "STOCK_IN_DETAIL_ibfk_1")
+  PRODUCT         PRODUCT?  @relation(fields: [product_id], references: [product_id], onDelete: NoAction, onUpdate: NoAction, map: "STOCK_IN_DETAIL_ibfk_2")
+
+  @@index([stock_id], map: "stock_id")
+  @@index([product_id], map: "product_id")
+}
