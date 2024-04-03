@@ -29,7 +29,11 @@ const loginEmployee = async (req, res) => {
       return;
     }
     let token = encodeToken(
-      { id: employee.employee_id, username: employee.username },
+      {
+        id: employee.employee_id,
+        username: employee.username,
+        fullName: employee.fullname,
+      },
       "12h"
     );
     successCode(res, { token }, "Login successfully");
