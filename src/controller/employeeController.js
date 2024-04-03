@@ -106,8 +106,17 @@ const getDetailEmployee = async (req, res) => {
   }
 };
 const getEmployeeList = async (req, res) => {
-  let employeeList = await prisma.EMPLOYEE.findMany();
-  successCode(res, employeeList, successText);
+  let employeeList = await prisma.EMPLOYEE.findMany({
+    include: {
+      ROLE: true,
+    },
+  });
+  const newData = employeeList.map((e) => ({
+    employee_id: e.employee_id,
+    fullName: e.fullname,
+    role: e.ROLE.role_name,
+  }));
+  successCode(res, newData, successText);
 };
 const deleteEmployee = async (req, res) => {
   let { id } = req.params;
