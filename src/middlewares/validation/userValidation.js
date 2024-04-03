@@ -5,9 +5,9 @@ let checkSignUp = [
   body("username", "username more than 6 characters").isLength({
     min: 6,
   }),
-  body("password", "password more than 6 characters").isLength({
-    min: 6,
-  }),
+  body("password", "password more than 6 characters and 1 digit").matches(
+    /^(?=.*\d).{6,}$/
+  ),
   body("fullname", "Invalid does not empty").not().isEmpty(),
   body("cccd", "Invalid does not empty").not().isEmpty(),
   body("cccd", "cccd more than 12 characters").isLength({
