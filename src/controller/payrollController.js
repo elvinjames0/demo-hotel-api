@@ -77,7 +77,7 @@ const paySalary = async (req, res) => {
       }
       return total;
     }, 0);
-    if (payroll) {  
+    if (payroll) {
       const month = new Date().getMonth() + 1;
       const year = new Date().getFullYear();
       const time = new Date().toLocaleString();
@@ -109,26 +109,30 @@ const paySalary = async (req, res) => {
 };
 const getAllBonusFine = async (req, res) => {
   try {
-    const bonusFineList = await prisma.BONUS_FINE.findMany();
-    successCode(res, bonusFineList, successText);
+    const bonusFineList = await prisma.BONUS_FINE.findMany({
+      include: {
+        EMPLOYEE: true,
+      },
+    });
+    const data = bonusFineList.map((e) => ({
+      fullName: e.EMPLOYEE.fullname,
+      bf_date_time: e.bf_date_time,
+      description: e.description,
+      money: e.money,
+      bf_type: e.bf_type,
+    }));
+    successCode(res, data, successText);
   } catch (err) {
     errorCode(res, errorText);
   }
 };
 const addBonusFine = async (req, res) => {
   try {
-    const {
-      employee_id,
-      payroll_id,
-      bf_date_time,
-      money,
-      description,
-      bf_type,
-    } = req.body;
+    const { employee_id, payroll_id, money, description, bf_type } = req.body;
     const data = {
       employee_id,
       payroll_id,
-      bf_date_time,
+      bf_date_time: new Date().toISOString(),
       money,
       description,
       bf_type,
