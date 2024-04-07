@@ -11,7 +11,10 @@ app.use(express.json());
 app.use(express.static("."));
 app.use(
   cors({
-    origin: ["http://localhost:3000", "http://hotel-management-nht.vercel.app"],
+    origin: [
+      "http://localhost:3000",
+      "https://hotel-management-nht.vercel.app",
+    ],
   })
 );
 
