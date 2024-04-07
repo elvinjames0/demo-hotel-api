@@ -15,14 +15,13 @@ let checkSignUp = [
   }),
   body("phone", "Invalid phone").isMobilePhone(),
   body("address", "Invalid does not empty").not().isEmpty(),
-  body("gender", "Invalid gender").matches(/[0,1]/),
-  body("date_of_birth", "Birthdate format dd/mm/yyyy").matches(
-    /^(0[1-9]|[12][0-9]|3[01])[- /.](0[1-9]|1[012])[- /.](19|20)\d\d$/
+  body("gender", "Invalid gender").isBoolean().toBoolean(),
+  body("date_of_birth", "Birthdate format MM/DD/YYYY").matches(
+    /^(0[1-9]|1[0-2])\/(0[1-9]|1\d|2\d|3[01])\/(19|20)\d{2}$/
   ),
   body("gmail", "Invalid does not empty").not().isEmpty(),
   body("gmail", "Invalid gmail").isEmail(),
   body("nationality", "Invalid does not empty").not().isEmpty(),
-  body("status", "Invalid does not empty").not().isEmpty(),
   body("date_start", "Invalid does not empty").not().isEmpty(),
   body("base_salary", "Invalid does not empty").not().isEmpty(),
 ];

@@ -68,13 +68,14 @@ model EMPLOYEE {
   cccd          String?        @db.VarChar(255)
   phone         String?        @db.VarChar(20)
   address       String?        @db.VarChar(100)
-  gender        Int?
+  gender        Boolean?
   date_of_birth String?        @db.VarChar(20)
   gmail         String?        @db.VarChar(100)
   nationality   Int?
   status        Int?
   date_start    DateTime?      @db.DateTime(0)
   date_end      DateTime?      @db.DateTime(0)
+  base_salary   Int?
   BONUS_FINE    BONUS_FINE[]
   ROLE          ROLE?          @relation(fields: [role_id], references: [role_id], onDelete: NoAction, onUpdate: NoAction, map: "EMPLOYEE_ibfk_1")
   PAYROLL       PAYROLL[]

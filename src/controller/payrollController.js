@@ -77,7 +77,7 @@ const paySalary = async (req, res) => {
       }
       return total;
     }, 0);
-    if (payroll) {
+    if (payroll) {  
       const month = new Date().getMonth() + 1;
       const year = new Date().getFullYear();
       const time = new Date().toLocaleString();

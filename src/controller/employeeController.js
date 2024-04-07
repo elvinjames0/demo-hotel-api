@@ -56,9 +56,6 @@ const addEmployee = async (req, res) => {
       date_of_birth,
       gmail,
       nationality,
-      status,
-      date_start,
-      date_end,
       base_salary,
     } = req.body;
     const hashPass = await hashPassword(password);
@@ -75,9 +72,9 @@ const addEmployee = async (req, res) => {
       date_of_birth,
       gmail,
       nationality,
-      status,
-      date_start,
-      date_end,
+      status: 1,
+      date_start: new Date().toISOString(),
+      date_end: null,
       base_salary,
     };
     let employee = await prisma.EMPLOYEE.findUnique({ where: { username } });
@@ -86,9 +83,7 @@ const addEmployee = async (req, res) => {
       return;
     }
     employee = await prisma.EMPLOYEE.create({ data });
-    if (employee) {
-      successCode(res, employee, "Created!");
-    }
+    successCode(res, employee, "Created!");
   } catch (err) {
     errorCode(err, errorText);
   }

@@ -11,8 +11,8 @@ employeeRouter.post(
 );
 employeeRouter.post(
   "/addEmployee",
-  validator.Auth.checkSignUp,
-  validator.checkValidate,
+  // validator.Auth.checkSignUp,
+  // validator.checkValidate,
   Employee.addEmployee
 );
 employeeRouter.get("/getDetailEmployee/:id", Employee.getDetailEmployee);
