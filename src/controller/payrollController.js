@@ -115,6 +115,7 @@ const getAllBonusFine = async (req, res) => {
       },
     });
     const data = bonusFineList.map((e) => ({
+      bf_id: e.bf_id,
       fullName: e.EMPLOYEE.fullname,
       bf_date_time: e.bf_date_time,
       description: e.description,
