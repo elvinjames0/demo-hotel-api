@@ -11,9 +11,19 @@ const prisma = new PrismaClient();
 
 const addExpenditures = async (req, res) => {
   try {
-    const { shift_id, description, money, expenditures_date_time } = req.body;
-    const data = { shift_id, description, money, expenditures_date_time };
-    const newData = await prisma.eXPENDITURES.create({ data });
+    const { description, money } = req.body;
+    const shift = await prisma.SHIFT.findFirst({
+      where: {
+        status: false,
+      },
+    });
+    const data = {
+      shift_id: shift.shift_id,
+      description,
+      money,
+      expenditures_date_time: new Date().toISOString(),
+    };
+    const newData = await prisma.EXPENDITURES.create({ data });
     successCode(res, newData, "Created!");
   } catch (err) {
     errorCode(err, errorText);
