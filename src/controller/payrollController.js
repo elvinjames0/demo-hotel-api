@@ -129,10 +129,16 @@ const getAllBonusFine = async (req, res) => {
 };
 const addBonusFine = async (req, res) => {
   try {
-    const { employee_id, payroll_id, money, description, bf_type } = req.body;
+    const { employee_id, money, description, bf_type } = req.body;
+    const payroll = await prisma.PAYROLL.findFirst({
+      where: {
+        employee_id,
+        status: false,
+      },
+    });
     const data = {
       employee_id,
-      payroll_id,
+      payroll_id: payroll.payroll_id,
       bf_date_time: new Date().toISOString(),
       money,
       description,
@@ -155,12 +161,11 @@ const updateBonusFine = async (req, res) => {
       const data = await prisma.BONUS_FINE.update({
         where: { bf_id: Number(id) },
         data: {
-          money: money,
-          description: description,
-          bf_type: bf_type,
+          money,
+          description,
+          bf_type,
         },
       });
-
       successCode(res, data, "Successfully!");
     } else {
       failCode(res, null, failText);
