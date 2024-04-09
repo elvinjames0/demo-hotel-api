@@ -15,8 +15,6 @@ app.use(
       "http://localhost:3000",
       "https://hotel-management-nht.vercel.app",
     ],
-    credentials: true,
-    withCredentials: true,
   })
 );
 
