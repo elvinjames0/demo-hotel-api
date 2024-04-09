@@ -17,8 +17,13 @@ const addExpenditures = async (req, res) => {
         status: false,
       },
     });
+    const detail = await prisma.sHIFT_DETAIL.findFirst({
+      where: {
+        shift_id: shift.shift_id,
+      },
+    });
     const data = {
-      shift_id: shift.shift_id,
+      shift_detail_id: detail.shift_detail_id,
       description,
       money,
       expenditures_date_time: new Date().toISOString(),

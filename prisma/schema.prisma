@@ -87,14 +87,14 @@ model EMPLOYEE {
 }
 
 model EXPENDITURES {
-  expenditures_id        Int     @id @default(autoincrement())
-  shift_id               Int?
-  description            String? @db.VarChar(255)
+  expenditures_id        Int           @id @default(autoincrement())
+  shift_detail_id        Int?
+  description            String?       @db.VarChar(255)
   money                  Int?
-  expenditures_date_time String? @db.VarChar(255)
-  SHIFT                  SHIFT?  @relation(fields: [shift_id], references: [shift_id], onDelete: NoAction, onUpdate: NoAction, map: "EXPENDITURES_ibfk_1")
+  expenditures_date_time DateTime?     @db.DateTime(0)
+  SHIFT_DETAIL           SHIFT_DETAIL? @relation(fields: [shift_detail_id], references: [shift_detail_id], onDelete: NoAction, onUpdate: NoAction, map: "EXPENDITURES_ibfk_1")
 
-  @@index([shift_id], map: "shift_id")
+  @@index([shift_detail_id], map: "shift_detail_id")
 }
 
 model PAYROLL {
@@ -195,17 +195,17 @@ model SHIFT {
   description     String?        @db.VarChar(255)
   status          Boolean?
   BILL            BILL[]
-  EXPENDITURES    EXPENDITURES[]
   SHIFT_DETAIL    SHIFT_DETAIL[]
 }
 
 model SHIFT_DETAIL {
-  shift_detail_id Int       @id @default(autoincrement())
+  shift_detail_id Int            @id @default(autoincrement())
   shift_id        Int?
   employee_id     Int?
-  time_login      DateTime? @db.DateTime(0)
-  SHIFT           SHIFT?    @relation(fields: [shift_id], references: [shift_id], onDelete: NoAction, onUpdate: NoAction, map: "SHIFT_DETAIL_ibfk_1")
-  EMPLOYEE        EMPLOYEE? @relation(fields: [employee_id], references: [employee_id], onDelete: NoAction, onUpdate: NoAction, map: "SHIFT_DETAIL_ibfk_2")
+  time_login      DateTime?      @db.DateTime(0)
+  EXPENDITURES    EXPENDITURES[]
+  SHIFT           SHIFT?         @relation(fields: [shift_id], references: [shift_id], onDelete: NoAction, onUpdate: NoAction, map: "SHIFT_DETAIL_ibfk_1")
+  EMPLOYEE        EMPLOYEE?      @relation(fields: [employee_id], references: [employee_id], onDelete: NoAction, onUpdate: NoAction, map: "SHIFT_DETAIL_ibfk_2")
 
   @@index([employee_id], map: "employee_id")
   @@index([shift_id], map: "shift_id")
