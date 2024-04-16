@@ -9,7 +9,14 @@ let PORT = process.env.PORT || 4000;
 
 app.use(express.json());
 app.use(express.static("."));
-app.use(cors());
+app.use(
+  cors({
+    origin: [
+      "http://localhost:3000",
+      "https://hotel-management-nht.vercel.app",
+    ],
+  })
+);
 
 app.use(rootRouter);
 
