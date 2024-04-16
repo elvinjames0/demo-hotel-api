@@ -215,6 +215,8 @@ model STOCK_IN {
   stock_id        Int               @id @default(autoincrement())
   stock_date      String?           @db.VarChar(255)
   employee_id     Int?
+  status          Boolean?
+  description     String?           @db.VarChar(255)
   EMPLOYEE        EMPLOYEE?         @relation(fields: [employee_id], references: [employee_id], onDelete: NoAction, onUpdate: NoAction, map: "employee_id")
   STOCK_IN_DETAIL STOCK_IN_DETAIL[]
 

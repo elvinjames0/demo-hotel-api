@@ -47,12 +47,17 @@ const deleteProduct = async (req, res) => {
 };
 const addStockIn = async (req, res) => {
   try {
-    const { stock_date, employee_id } = req.body;
+    const { employee_id, description } = req.body;
     const employee = await prisma.EMPLOYEE.findUnique({
       where: { employee_id: Number(employee_id) },
     });
     if (employee.role_id == 1) {
-      const data = { stock_date, employee_id };
+      const data = {
+        stock_date: new Date().toISOString(),
+        employee_id,
+        status: false,
+        description,
+      };
       const newData = await prisma.STOCK_IN.create({ data });
       successCode(res, newData, "Created!");
     } else {
@@ -70,6 +75,7 @@ const getAllStockIn = async (req, res) => {
       },
     });
     const data = stockInList.map((item) => ({
+      stock_id: item.stock_id,
       stock_date: item.stock_date,
       fullName: item.EMPLOYEE.fullname,
     }));
@@ -80,22 +86,51 @@ const getAllStockIn = async (req, res) => {
 };
 const addStockInDetail = async (req, res) => {
   try {
-    const { stock_id, product_id, quantity } = req.body;
-    const stock = await prisma.STOCK_IN.findUnique({
-      where: { stock_id: Number(stock_id) },
+    const { data } = req.body;
+    const stockIn = await prisma.STOCK_IN.findFirst({
+      where: {
+        status: false,
+      },
     });
-    const product = await prisma.PRODUCT.findUnique({
-      where: { product_id: Number(product_id) },
-    });
-    if (product && stock) {
-      const data = { stock_id, product_id, quantity };
-      await prisma.PRODUCT.update({
-        where: { product_id: Number(product_id) },
+    if (stockIn) {
+      const newData = await Promise.all(
+        data.map(async (e) => {
+          return await prisma.STOCK_IN_DETAIL.create({
+            data: {
+              stock_id: stockIn.stock_id,
+              product_id: e.product_id,
+              quantity: e.quantity,
+            },
+          });
+        })
+      );
+      await Promise.all(
+        data.map(async (e) => {
+          const product = await prisma.PRODUCT.findUnique({
+            where: {
+              product_id: e.product_id,
+            },
+          });
+          if (product) {
+            return await prisma.PRODUCT.update({
+              where: {
+                product_id: e.product_id,
+              },
+              data: {
+                quantity: product.quantity + e.quantity,
+              },
+            });
+          }
+        })
+      );
+      await prisma.STOCK_IN.update({
         data: {
-          quantity: product.quantity + quantity,
+          status: true,
+        },
+        where: {
+          stock_id: stockIn.stock_id,
         },
       });
-      const newData = await prisma.STOCK_IN_DETAIL.create({ data });
       successCode(res, newData, "Successfully!");
     } else {
       failCode(res, null, failText);

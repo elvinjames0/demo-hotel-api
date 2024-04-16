@@ -8,7 +8,6 @@ const {
   failText,
 } = require("../utils/response");
 const prisma = new PrismaClient();
-
 const addExpenditures = async (req, res) => {
   try {
     const { description, money } = req.body;
@@ -17,7 +16,7 @@ const addExpenditures = async (req, res) => {
         status: false,
       },
     });
-    const detail = await prisma.sHIFT_DETAIL.findFirst({
+    const detail = await prisma.SHIFT_DETAIL.findFirst({
       where: {
         shift_id: shift.shift_id,
       },
