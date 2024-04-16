@@ -18,7 +18,7 @@ const errorCode = (res, message) => {
   return res.status(500).send(message);
 };
 
-const successText = "Get data successfully";
+const successText = "Get data successfully!";
 const errorText = "ERROR!";
 const failText = "Cannot find data!";
 
