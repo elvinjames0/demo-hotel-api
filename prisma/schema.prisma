@@ -105,7 +105,7 @@ model PAYROLL {
   total_bonus       Int?
   total_fine        Int?
   status            Boolean?
-  payroll_date_time String?      @db.VarChar(255)
+  payroll_date_time DateTime?    @db.DateTime(0)
   total_salary      Int?
   BONUS_FINE        BONUS_FINE[]
   EMPLOYEE          EMPLOYEE?    @relation(fields: [employee_id], references: [employee_id], onDelete: NoAction, onUpdate: NoAction, map: "PAYROLL_ibfk_1")

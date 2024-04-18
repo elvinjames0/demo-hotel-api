@@ -36,7 +36,7 @@ const addExpenditures = async (req, res) => {
 
 const getAllExpenditures = async (req, res) => {
   try {
-    const expendituresList = await prisma.eXPENDITURES.findMany();
+    const expendituresList = await prisma.EXPENDITURES.findMany();
     successCode(res, expendituresList, successText);
   } catch (err) {
     errorCode(err, errorText);

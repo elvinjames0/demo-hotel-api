@@ -11,43 +11,48 @@ const prisma = new PrismaClient();
 
 const getAllPayroll = async (req, res) => {
   try {
-    const payrollList = await prisma.PAYROLL.findMany();
-    successCode(res, payrollList, successText);
+    const payrollList = await prisma.PAYROLL.findMany({
+      include: {
+        EMPLOYEE: true,
+      },
+    });
+
+    const newData = payrollList.map((e) => {
+      return {
+        ...e,
+        EMPLOYEE: e.EMPLOYEE.fullname,
+      };
+    });
+    successCode(res, newData, successText);
   } catch (err) {
     errorCode(res, errorText);
   }
 };
 const addPayroll = async (req, res) => {
   try {
-    const {
-      employee_id,
-      day_of_work,
-      allowance,
-      total_bonus,
-      total_fine,
-      payroll_date_time,
-      status,
-      total_salary,
-    } = req.body;
-    const employee = await prisma.EMPLOYEE.findUnique({
-      where: { employee_id: Number(employee_id) },
+    const employeeList = await prisma.EMPLOYEE.findMany();
+    const workingList = employeeList.filter((e) => {
+      return e.status == true;
     });
-    if (employee) {
-      const data = {
-        employee_id,
-        day_of_work,
-        allowance,
-        total_bonus,
-        total_fine,
-        payroll_date_time,
-        status,
-        total_salary,
-      };
-      const newData = await prisma.PAYROLL.create({ data });
-      successCode(res, newData, "Created!");
-    } else {
-      failCode(res, null, failText);
-    }
+    await Promise.all(
+      workingList.map(async (e) => {
+        if (e.status == true) {
+          return await prisma.PAYROLL.create({
+            data: {
+              employee_id: e.employee_id,
+              day_of_work: 0,
+              allowance: 0,
+              total_bonus: 0,
+              total_fine: 0,
+              status: false,
+              payroll_date_time: new Date().toISOString(),
+              total_salary: 0,
+            },
+          });
+        }
+      })
+    );
+    successCode(res, employeeList, "Created!");
   } catch (err) {
     errorCode(res, errorText);
   }
@@ -62,38 +67,37 @@ const paySalary = async (req, res) => {
         EMPLOYEE: true,
       },
     });
-    const bonusFine = await prisma.BONUS_FINE.findMany({
-      where: { payroll_id: Number(id) },
-    });
-    const bonus = bonusFine.reduce((total, e) => {
-      if (e.bf_type === true) {
-        return total + e.money;
-      }
-      return total;
-    }, 0);
-    const fine = bonusFine.reduce((total, e) => {
-      if (e.bf_type === false) {
-        return total + e.money;
-      }
-      return total;
-    }, 0);
-    if (payroll) {
+    if (payroll.status == false) {
+      const bonusFine = await prisma.BONUS_FINE.findMany({
+        where: { payroll_id: Number(id) },
+      });
+      const bonus = bonusFine.reduce((total, e) => {
+        if (e.bf_type === true) {
+          return total + e.money;
+        }
+        return total;
+      }, 0);
+      const fine = bonusFine.reduce((total, e) => {
+        if (e.bf_type === false) {
+          return total + e.money;
+        }
+        return total;
+      }, 0);
       const month = new Date().getMonth() + 1;
       const year = new Date().getFullYear();
-      const time = new Date().toLocaleString();
+      const salary =
+        (payroll.EMPLOYEE.base_salary * payroll.day_of_work) /
+          new Date(year, month, 0).getDate() +
+        bonus +
+        allowance -
+        fine;
       const result = {
         allowance: allowance,
         status: true,
         total_bonus: bonus,
         total_fine: fine,
-        payroll_date_time: time,
-        total_salary: Math.round(
-          (payroll.EMPLOYEE.base_salary * payroll.day_of_work) /
-            new Date(year, month, 0).getDate() +
-            bonus +
-            allowance -
-            fine
-        ),
+        payroll_date_time: new Date().toISOString(),
+        total_salary: Math.round(salary),
       };
       await prisma.PAYROLL.update({
         where: { payroll_id: Number(id) },
@@ -101,7 +105,7 @@ const paySalary = async (req, res) => {
       });
       successCode(res, result, "Successfully!");
     } else {
-      failCode(res, null, failText);
+      failCode(res, null, "Paid");
     }
   } catch (err) {
     errorCode(res, errorText);
@@ -144,6 +148,25 @@ const addBonusFine = async (req, res) => {
       description,
       bf_type,
     };
+    if (bf_type == true) {
+      await prisma.PAYROLL.update({
+        where: {
+          payroll_id: payroll.payroll_id,
+        },
+        data: {
+          total_bonus: payroll.total_bonus + money,
+        },
+      });
+    } else {
+      await prisma.PAYROLL.update({
+        where: {
+          payroll_id: payroll.payroll_id,
+        },
+        data: {
+          total_fine: payroll.total_fine + money,
+        },
+      });
+    }
     const newData = await prisma.BONUS_FINE.create({ data });
     successCode(res, newData, "Created!");
   } catch (err) {

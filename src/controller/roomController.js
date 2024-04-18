@@ -19,10 +19,39 @@ const getAllRoom = async (req, res) => {
     errorCode(err, errorText);
   }
 };
+const getAllRoomType = async (req, res) => {
+  try {
+    const roomList = await prisma.ROOM_TYPE.findMany();
+    successCode(res, roomList, successText);
+  } catch (err) {
+    errorCode(err, errorText);
+  }
+};
+const getAllRoomTable = async (req, res) => {
+  try {
+    const roomList = await prisma.ROOM.findMany();
+    successCode(res, roomList, successText);
+  } catch (err) {
+    errorCode(err, errorText);
+  }
+};
+const getDetailRoom = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const room = await prisma.ROOM.findUnique({
+      where: {
+        room_id: Number(id),
+      },
+    });
+    successCode(res, room, successText);
+  } catch (err) {
+    errorCode(err, errorText);
+  }
+};
 const addRoom = async (req, res) => {
   try {
-    const { room_type, room_number, status, balcony, fan, chair } = req.body;
-    const data = { room_type, room_number, status, balcony, fan, chair };
+    const { room_type, room_number, balcony, fan, chair } = req.body;
+    const data = { room_type, room_number, status: 0, balcony, fan, chair };
     let newData = await prisma.ROOM.create({ data });
     successCode(res, newData, "Created!");
   } catch (err) {
@@ -47,13 +76,12 @@ const deleteRoom = async (req, res) => {
 };
 const updateRoom = async (req, res) => {
   try {
-    const { room_id, room_type, room_number, status, balcony, fan, chair } =
-      req.body;
+    const { room_id, room_type, room_number, balcony, fan, chair } = req.body;
     const room = await prisma.ROOM.findUnique({
       where: { room_id: Number(room_id) },
     });
     if (room) {
-      const data = { room_type, room_number, status, balcony, fan, chair };
+      const data = { room_type, room_number, balcony, fan, chair };
       await prisma.ROOM.update({ where: { room_id: Number(room_id) }, data });
       successCode(res, data, "Updated!");
     } else {
@@ -110,4 +138,7 @@ module.exports = {
   updateRoom,
   addRoomType,
   deleteRoomType,
+  getAllRoomTable,
+  getDetailRoom,
+  getAllRoomType,
 };
